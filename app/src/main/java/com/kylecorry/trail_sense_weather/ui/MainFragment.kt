@@ -1,11 +1,14 @@
 package com.kylecorry.trail_sense_weather.ui
 
+import com.kylecorry.andromeda.core.system.Resources
+import com.kylecorry.andromeda.core.ui.setCompoundDrawables
 import com.kylecorry.andromeda.core.ui.useService
 import com.kylecorry.andromeda.fragments.XmlReactiveFragment
 import com.kylecorry.andromeda.fragments.useBackgroundMemo
 import com.kylecorry.andromeda.sense.location.GPS
 import com.kylecorry.andromeda.views.list.AndromedaListView
 import com.kylecorry.andromeda.views.list.ListItem
+import com.kylecorry.andromeda.views.list.ResourceListIcon
 import com.kylecorry.andromeda.views.toolbar.Toolbar
 import com.kylecorry.sol.time.Time.plusHours
 import com.kylecorry.sol.time.Time.toZonedDateTime
@@ -18,6 +21,7 @@ import com.kylecorry.trail_sense_weather.infrastructure.api.OpenMeteoProxy
 import kotlinx.coroutines.withTimeout
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
 import kotlin.math.roundToInt
 
 class MainFragment : XmlReactiveFragment(R.layout.fragment_main) {
@@ -28,7 +32,8 @@ class MainFragment : XmlReactiveFragment(R.layout.fragment_main) {
         val proxy = useMemo(context) { OpenMeteoProxy(context) }
         val formatter = useService<FormatService>()
 
-        val location = useBackgroundMemo {
+        // TODO: Cache last known location
+        val location = useBackgroundMemo(resetOnResume) {
             val gps = GPS(context)
             if (Duration.between(gps.time, Instant.now()).toHours() > 5) {
                 withTimeout(10000) {
@@ -38,7 +43,7 @@ class MainFragment : XmlReactiveFragment(R.layout.fragment_main) {
             gps.location
         }
 
-        val data = useBackgroundMemo(proxy, location) {
+        val data = useBackgroundMemo(proxy, location, resetOnResume) {
             if (location == null) {
                 return@useBackgroundMemo null
             }
@@ -51,7 +56,9 @@ class MainFragment : XmlReactiveFragment(R.layout.fragment_main) {
             val items = data.hourly.filter { it.time < Instant.now().plusHours(24) }.map {
                 ListItem(
                     it.time.toEpochMilli(),
-                    formatter.formatHour(
+                    (if (it.time.toZonedDateTime().toLocalDate() == LocalDate.now()
+                            .plusDays(1)
+                    ) "Tomorrow at " else "") + formatter.formatHour(
                         it.time.toZonedDateTime().hour
                     ) + "  -  " + WeatherCodeLookup.getWeatherDescription(it.weatherCode),
                     subtitle = "${it.temperature.convertTo(TemperatureUnits.F).temperature.roundToInt()}° F  -  ${(it.precipitationProbability * 100).roundToInt()}% precip.  -  ${(it.humidity * 100).roundToInt()}% humidity  -  ${
@@ -59,6 +66,7 @@ class MainFragment : XmlReactiveFragment(R.layout.fragment_main) {
                             DistanceUnits.Miles, TimeUnits.Hours
                         ).speed.roundToInt()
                     } mph",
+                    icon = ResourceListIcon(WeatherCodeLookup.getWeatherImage(it.weatherCode))
                 )
             }
 
@@ -70,6 +78,10 @@ class MainFragment : XmlReactiveFragment(R.layout.fragment_main) {
                 toolbar.title.text = "Loading"
                 return@useEffect
             }
+            toolbar.title.setCompoundDrawables(
+                Resources.dp(context, 24f).toInt(),
+                left = WeatherCodeLookup.getWeatherImage(data.current.weatherCode)
+            )
             toolbar.title.text = WeatherCodeLookup.getWeatherDescription(data.current.weatherCode)
             toolbar.subtitle.text =
                 "${data.current.temperature.convertTo(TemperatureUnits.F).temperature.roundToInt()}° F  -  ${(data.current.humidity * 100).roundToInt()}% humidity  -  ${

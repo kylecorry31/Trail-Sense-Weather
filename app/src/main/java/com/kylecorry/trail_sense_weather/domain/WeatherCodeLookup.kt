@@ -1,5 +1,8 @@
 package com.kylecorry.trail_sense_weather.domain
 
+import androidx.annotation.IdRes
+import com.kylecorry.trail_sense_weather.R
+
 object WeatherCodeLookup {
 
     fun getWeatherDescription(code: Int): String {
@@ -33,6 +36,23 @@ object WeatherCodeLookup {
             96 -> "Thunderstorm with slight hail"
             99 -> "Thunderstorm with heavy hail"
             else -> "Unknown weather code $code"
+        }
+    }
+
+    // TODO: Replace sun icons with moon at night
+    @IdRes
+    fun getWeatherImage(code: Int): Int {
+        return when (code) {
+            0, 1 -> R.drawable.sunny
+            2 -> R.drawable.partly_cloudy
+            3 -> R.drawable.cloudy
+            45, 48 -> R.drawable.fog
+            51, 53, 61, 63, 80, 81, 85 -> R.drawable.light_rain
+            55, 65, 82, 86 -> R.drawable.heavy_rain
+            56, 57, 66, 67 -> R.drawable.ic_precipitation
+            71, 73, 75, 77 -> R.drawable.ic_precipitation_snow
+            95, 96, 99 -> R.drawable.storm
+            else -> R.drawable.ic_info
         }
     }
 
