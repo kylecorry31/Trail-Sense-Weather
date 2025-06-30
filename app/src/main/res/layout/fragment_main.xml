@@ -1,23 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.kylecorry.andromeda.views.toolbar.Toolbar
-        android:id="@+id/home_title"
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/location"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Location" />
+
+    <TextView
+        android:id="@+id/current_temperature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
+        app:layout_constraintTop_toBottomOf="@id/location"
+        tools:text="70°" />
+
+
+    <TextView
+        android:id="@+id/current_weather"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/home" />
+        app:layout_constraintTop_toBottomOf="@id/current_temperature"
+        tools:text="Partly cloudy" />
+
+    <ImageView
+        android:id="@+id/current_weather_image"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="32dp"
+        android:importantForAccessibility="no"
+        app:layout_constraintBottom_toBottomOf="@id/current_high_low"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/location" />
+
+    <TextView
+        android:id="@+id/current_high_low"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        app:layout_constraintTop_toBottomOf="@id/current_weather"
+        tools:text="80° / 60°" />
+
 
     <com.kylecorry.andromeda.views.list.AndromedaListView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/home_title" />
+        app:layout_constraintTop_toBottomOf="@id/current_high_low" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

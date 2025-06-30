@@ -19,6 +19,7 @@ import com.kylecorry.trail_sense_weather.domain.HourlyWeather
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZonedDateTime
 
 class CurrentWeatherDto(
     val time: String,
@@ -200,7 +201,9 @@ class OpenMeteoProxy(context: Context) {
                     ),
                     uvIndex = 0f // TODO
                 )
-            }.filter { !it.time.isInPast() }.sortedBy { it.time },
+            }.filter {
+                it.time >= ZonedDateTime.now().withMinute(0).withSecond(0).withNano(0).toInstant()
+            }.sortedBy { it.time },
             forecast.daily.time.mapIndexed { index, time ->
                 DailyWeather(
                     date = LocalDate.parse(time),
